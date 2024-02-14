@@ -147,13 +147,12 @@ export class Character {
         enemy.state = 1;
         friendly.attack(enemy);
         enemy.attack(friendly);
-        friendly.update();
-        enemy.update();
+        return true;
       }
       friendly.state = 0;
       enemy.state = 0;
-      friendly.update();
-      enemy.update();
+      return false;
+      
   }
 }
 

@@ -1,6 +1,12 @@
 import { Character } from "./characters/Character.js";
 import { Background } from "./ui/basic-utils.js";
 
+const urbicSpawn = document.getElementById("urbicSpawn");
+
+//stejný jak onlclick
+urbicSpawn.addEventListener("click", (e) =>{
+    friendly.push(new Character("UnrealUrbic"));
+});
 //uchovava postavy pro hrace
 const friendly = [];
 //uchovava postavy pro pocitac
@@ -56,19 +62,32 @@ const clearCanvas = () =>{
 
 
 const update = () => {
+    friendly.map((a) =>{
+        a.update();
+    });
+    enemies.map((b) =>{
+        b.update();
+    });
     detectCollision();
 };
 
 const detectCollision = () =>{
+    for (const a of friendly) {
+        for (const b of enemies) {
+            if(Character.detectCollision(a,b)) return;
+        }
+    }
+
+    /*
     friendly.map((a) =>{
         enemies.map((b) =>{
             Character.detectCollision(a,b);
         });
     });
+    */
 }
 //map === foreach
 const render = () =>{
-    
     //a - postava ktera je v poli zrovna na rade
     friendly.map((a) =>{
         a.draw(ctx);
