@@ -9,18 +9,16 @@ export class Character {
   foo.characterData - nebude fungovat
   */
 
-  constructor(name) {
-    this.name = name;
+  constructor(type) {
     this.img = new Image();
-    this.setType(name);
+    this.setType(type);
     this.img.src = this.path;
     this.ratio = 0.3;
     this.size = {
-      width: 336 * this.ratio,
+      width: 600 * this.ratio,
       height: 634 * this.ratio,
     };
-    this.state = 0;
-    this.animationSpeed = 4;
+    
     this.frame = {
       counter: 0,
       index: 1,
@@ -29,13 +27,15 @@ export class Character {
       height: 100
     }
 
+    this.state = 0;
+    this.animationSpeed = 4;
   }
 
   // == - porovnáváme JEN hodnotu
   // === - porovnáváme hodnotu i datový typ (string, int...)
-  setType(name) {
+  setType(type) {
     Character.charactersData.map((obj)=>{
-      if(name === obj.name){
+      if(type === obj.name){
         this.sprites = obj.sprites;
         this.hp = obj.stats.hp;
         this.maxHp = this.hp;
@@ -55,7 +55,31 @@ export class Character {
   }
 
   animate(ctx){
-    ctx.drawImage()
+    let movementX = this.position.x;
+    if( this.side === 1){
+      movementX = 0;
+    }
+    ctx.drawImage(
+      this.img,
+      this.frame.width * this.frame.index,
+      0,
+      this.frame.width,
+      this.frame.height,
+      movementX,
+      this.position.y,
+      this.size.width,
+      this.size.height
+    );
+
+    if(this.frame.index >= this.frame.maxIndex) return this.frame.index = 0;
+    this.frame.counter++;
+
+    if(this.frame.counter >= this.animationSpeed){
+      this.frame.index++;
+      this.frame.counter = 0;
+    }
+    
+
   }
 
   draw(ctx) {
@@ -71,18 +95,26 @@ export class Character {
     ctx.restore();
   }
 
-  update(state) {
-    switch (state) {
+  update() {
+    switch (this.state) {
       case 0:
+        this.img.src = this.sprites.movement.path;
+        this.frame.maxIndex = this.sprites.movement.frames;
+        this.frame.width = this.sprites.movement.size.width;
+        this.frame.height = this.sprites.movement.size.height;
         this.move();
         break;
       case 1:
-        console.log(this.name + " attacks");
+        this.img.src = this.sprites.attack.path;
+        this.frame.maxIndex = this.sprites.attack.frames;
+        this.frame.width = this.sprites.attack.size.width;
+        this.frame.height = this.sprites.attack.size.height;
         break;
       case 2:
         console.log(this.name + " dies ");
-        this.position.x = 0;
-        this.hp = 100;
+        this.hp = this.maxHp;
+        if(this.side === 0) return this.position.x = -200;
+        this.position.x = 1400;
         break;
       default:
     }
@@ -90,14 +122,38 @@ export class Character {
 
   move() {
     this.position.x += this.velocity.x;
-    if (this.position.x >= 1140) {
-      this.velocity.x *= -1;
-      this.side = 1;
+  }
+
+  attack(enemy){
+    if(enemy === undefined){
+      enemy.state = 2;
     }
-    if (this.position.x <= 50) {
-      this.velocity.x *= -1;
-      this.side = 0;
+    enemy.hp -= this.dmg;
+    if(enemy.hp <= 0){
+      enemy.state = 2;
     }
+  }
+
+  static detectCollision(friendly, enemy){
+    if
+    (friendly.position.x <
+      enemy.position.x + enemy.size.width * 0.3 + enemy.size.width * 0.2 &&
+    friendly.position.x +
+      friendly.size.width / 2 +
+      friendly.size.width * 0.2 >
+      enemy.position.x + enemy.size.width * 0.3){
+
+        friendly.state = 1;
+        enemy.state = 1;
+        friendly.attack(enemy);
+        enemy.attack(friendly);
+        friendly.update();
+        enemy.update();
+      }
+      friendly.state = 0;
+      enemy.state = 0;
+      friendly.update();
+      enemy.update();
   }
 }
 

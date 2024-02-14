@@ -54,11 +54,18 @@ const clearCanvas = () =>{
     background.draw(ctx);
 };
 
+
 const update = () => {
-    frafta.update(0);
-    unrealurbic.update(0);
+    detectCollision();
 };
 
+const detectCollision = () =>{
+    friendly.map((a) =>{
+        enemies.map((b) =>{
+            Character.detectCollision(a,b);
+        });
+    });
+}
 //map === foreach
 const render = () =>{
     
